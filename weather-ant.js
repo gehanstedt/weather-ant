@@ -1,4 +1,6 @@
 
+var cityArray = [];
+var currentSelectedCity;
 
 
 $(document).ready(function() {
@@ -20,9 +22,78 @@ $(document).ready(function() {
     console.log (response);
 
   });
+
+  var currentSelectedCity = [
+    {
+      cityName: null,
+      stateAbbreviation: null
+    }
+  ];
+
+  loadCityArray ();
+  displayCities (currentSelectedCity);
 });
 
+function loadCityArray () {
+  cityArray = [
+    {
+      cityName: "Atlanta",
+      stateAbbreviation: "GA"
+    },
+  
+    {
+      cityName: "Milwaukee",
+      stateAbbreviation: "WI"
+    },
 
+    {
+      cityName: "Las Vegas",
+      stateAbbreviation: "NV"
+    }];
+}
+
+function displayCities (selectedCity) {
+  var counter;
+  var lengthCityArray = cityArray.length;
+  var anchorElement;
+  var classes;
+
+  // Empty current buttons
+  $("#cityButtonsGoHere").empty ();
+
+  counter = 0;
+  while (counter < lengthCityArray) {
+    if ((selectedCity.cityName === cityArray[counter].cityName) && (selectedCity.stateAbbreviation == cityArray[counter].stateAbbreviation)) {
+      classes = `list-group-item list-group-item-action active`;
+    }
+
+    else {
+      classes = `list-group-item list-group-item-action`;
+    }
+    anchorElement = $(`<a href="#" class="${classes}" cityName="${cityArray[counter].cityName}" stateAbbreviation="${cityArray[counter].stateID}">`);
+
+    // If the stateAbbreviation is NONE, then we don't show a State
+
+    if (cityArray[counter].stateAbbreviation === "NONE") {
+      anchorElement.text (`${cityArray[counter].cityName}`);
+    }
+
+    else {
+      anchorElement.text (`${cityArray[counter].cityName}, ${cityArray[counter].stateAbbreviation}`);
+    }
+
+    console.log ("adding city");
+
+    $("#cityButtonsGoHere").append (anchorElement);
+
+    counter ++;
+  }
+
+
+
+
+
+}
 
 
 
