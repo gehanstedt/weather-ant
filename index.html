@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Weather Ant</title>
+  <!-- Reference stylesheets from bootstrap, Google for Cinzel font, local override stylesheet local-style.css -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="local-style.css">
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light ghHeader">
+    <span id="companyName">G Dog Enterprises</span>
+    <span id="applicationName">Weather Ant</span>
+  </nav>
+
+  <main class="container-fluid">
+    <div class="row">
+      <aside class="col-md-3 col-xl-3 bd-sidebar">
+        <form role="search" class="bd-search d-flex align-items-center">
+          <table>
+            <tr>
+              <td>
+                <input type="text" class="form-control ds-input" id="search-input" placeholder="City..."  style="position: relative; vertical-align: top;">
+              </td>
+              <td rowspan="2">
+                <button type="button" class="btn btn-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M 0.8125 0 C 0.4125 0 1.4802974e-16 0.4125 0 0.8125 L 0 23.1875 C 0 23.5875 0.4125 24 0.8125 24 L 23.1875 24 C 23.5875 24 24 23.5875 24 23.1875 L 24 0.8125 C 24 0.4125 23.5875 1.4802974e-16 23.1875 0 L 0.8125 0 z M 10 4 C 13.3 4 16 6.7 16 10 C 16 11.3 15.60625 12.5 14.90625 13.5 L 20.09375 18.6875 C 20.19375 18.7875 20.1875 19.1875 19.6875 19.6875 C 19.1875 20.1875 18.7875 20.19375 18.6875 20.09375 L 13.5 14.90625 C 12.5 15.60625 11.3 16 10 16 C 6.7 16 4 13.3 4 10 C 4 6.7 6.7 4 10 4 z M 10 6 C 7.790861 6 6 7.790861 6 10 C 6 12.209139 7.790861 14 10 14 C 12.209139 14 14 12.209139 14 10 C 14 7.790861 12.209139 6 10 6 z"/>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <select type="search" class="form-control ds-input" id="search-input">
+                    <option selected>State...</option>
+                    <option>...</option>
+                </select>
+              </td>
+            </tr>
+          </table>
+        </form>
+        <a href="#" class="list-group-item list-group-item-action">Atlanta</a>
+        <a href="#" class="list-group-item list-group-item-action">Chicago</a>
+        <a href="#" class="list-group-item list-group-item-action" tabindex="-1" aria-disabled="true">Detroit</a>
+        <a href="#" class="list-group-item list-group-item-action">Milwaukee</a>
+        <a href="#" class="list-group-item list-group-item-action active">Las Vegas</a>
+      </aside>
+      <div class="col-md-9 col-xl-9 card-body">
+        <div class="row">
+          <div id="general-city-area">
+            <h2>City and Date go here</h2>
+            <p>Temp: 35</p>
+            <p>Humidity: 35</p>
+            <p>Wind Speed:: 35</p>
+            <p>UV INdex: 35</p>
+          </div>
+        </div>
+        <div class="row">
+          <section>
+            <div><h2>Five Day Forecast</h2></div>
+          </section>
+        </div>
+        <div class="row">
+          <div class="col-3 m-2 bg-primary forecast-day">
+            <h6>
+              10/27/2020
+            </h6>
+            <img src="https://img.icons8.com/color/48/000000/cloud.png">
+            <p>Temperature: 33 °F</p>
+            <p>Humidity: 84%</p>
+          </div>
+          <div class="col-3 m-2 bg-primary forecast-day">
+            <h6>
+              10/27/2020
+            </h6>
+            <img src="https://img.icons8.com/color/48/000000/cloud.png">
+            <p>Temperature: 33 °F</p>
+            <p>Humidity: 84%</p>
+          </div>
+          <div class="col-3 m-2 bg-primary forecast-day">
+            <h6>
+              10/27/2020
+            </h6>
+            <img src="https://img.icons8.com/color/48/000000/cloud.png">
+            <p>Temperature: 33 °F</p>
+            <p>Humidity: 84%</p>
+          </div>
+          <div class="col-3 m-2 bg-primary forecast-day">
+            <h6>
+              10/27/2020
+            </h6>
+            <img src="https://img.icons8.com/color/48/000000/cloud.png">
+            <p>Temperature: 33 °F</p>
+            <p>Humidity: 84%</p>
+          </div>
+          <div class="col-3 m-2 bg-primary forecast-day">
+            <h6>
+              10/27/2020
+            </h6>
+            <img src="https://img.icons8.com/color/48/000000/cloud.png">
+            <p>Temperature: 33 °F</p>
+            <p>Humidity: 84%</p>
+          </div>
+        </div>
+    </div>
+  </main>
+
+
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="weather-ant.js" type="text/javascript">
+  </script>
+
+</body>
+
+</html>

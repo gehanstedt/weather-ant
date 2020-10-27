@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Weather Ant</title>
+  <!-- Reference stylesheets from bootstrap, Google for Cinzel font, local override stylesheet local-style.css -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="local-style.css">
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light ghHeader">
+    <span id="companyName">G Dog Enterprises</span>
+    <span id="applicationName">Weather Ant</span>
+  </nav>
+
+  <aside>
+    <ul class="list-group">
+      <li class="list-group-item active">Cras justo odio</li>
+      <li class="list-group-item">Dapibus ac facilisis in</li>
+      <li class="list-group-item">Morbi leo risus</li>
+      <li class="list-group-item">Porta ac consectetur ac</li>
+      <li class="list-group-item">Vestibulum at eros</li>
+    </ul>
+  </aside>
+
+
+
+
+  <header class="headerBar1">
+    <span id="highScoreOption"><a href="" id="highScoreClick">Click for high scores</a></span>
+    <span id="timerBar">Timer: <span id="time">XX</span></span>
+  </header>
+
+  <header class="headerBar2">
+    <span id="highScoreBar">&nbsp;</span>
+    <span id="penaltyBar">Penalty: <span id="penaltyTime">XX</span></span>
+  </header>
+
+  <main class="row">
+    <aside class="col-sm-1 col-md-2 col-xl-2"> </aside>
+    <section class="col-sm-8 col-md-7 col-xl-7" id="welcome">
+      <h1> Welcome to G Dog's US State Capital Trivia Challenge</h1>
+      <h3> This is Homework Assignment #4 part of the Georgia Tech Coding Bootcamp</h3>
+      <p>
+        Are you ready for some trivia?  
+      </p>
+      <p>
+        You will be given <span id="totalSeconds">NN</span> seconds to answer
+        up to <span id="numberQuestions">seven</span> questions by selecting the appropriate capital city for
+        the state in question.  If you are correct, you will move on to the next question.  If you are wrong, 
+        you will receive a <span id="penaltyLength">NN</span> second penalty on the timer.  If the timer in the upper right reaches 0 before 
+        you answer your last question, you'll need to brush up on your US State capitals.  If you succeed
+        in answering all questions, your score will be the remaining time on the timer.
+      </p>
+      <p>
+        When you are ready, go ahead and click...
+      </p>
+      <button class="btn btn-primary" id="buttonBegin">Begin...</button>
+      <button class="btn btn-primary" id="buttonBegin50">I'll take on all 50!</button>
+    </section>
+    <section class="col-sm-8 col-md-7 col-xl-7" id="mainTrivia">
+      <h2 id="questionText">Question goes here..........</h2>
+      <ul class="answerList">
+        <li class="answerListItem"><button class="btn btn-primary answerButton">Begin...</button></li>
+        <li class="answerListItem"><button class="btn btn-primary answerButton">Begin...</button></li>
+        <li class="answerListItem"><button class="btn btn-primary answerButton">Begin...</button></li>
+        <li class="answerListItem"><button class="btn btn-primary answerButton">Begin...</button></li>
+      </ul>
+    </section>
+    <section class="col-sm-8 col-md-7 col-xl-7" id="resultsWinner">
+      <h1 class="resultsWinner"> We have a winner!  Score: <span class="myScoreHeading">XX</span></h1>
+      <p class="resultsWinner">
+        Congratulations!  Your final score was <span class="myScoreBody">XX</span>.
+      </p>
+      <p class="resultsWinner">
+        Your name:  <input type="text" name="winnersName" id="winnersName"> <button class="btn btn-primary initialSubmitButton" id="highScoreSubmit">Submit</button>
+      </p>
+    </section>
+    <section class="col-sm-8 col-md-7 col-xl-7" id="resultsLoser">
+      <h1> Darn!  You didn't do so well.  It is back to highschool for you!</h1>
+      <p>
+        Unfortuantely, your time ran out before you could answer all the questions.  May
+        I suggest a bit more Google research?  
+      </p>
+      <p>
+        <button class="btn btn-primary goToBeginning" id="goBack1">Go Back</button>
+        <button class="btn btn-primary viewHighScores" id="viewHighScores">View High Scores</button>
+      </p>
+    </section>
+    <section class="col-sm-8 col-md-7 col-xl-7" id="highScores">
+      <h1> High Scores</h1>
+      <ul class="highScoreList">
+        <li>
+          21 - G Dog
+        </li>
+      </ul>
+      <p>
+        <button class="btn btn-primary goToBeginning" id="goBack2">Go Back</button>
+      </p>
+    </section>
+
+  </main>
+  <footer class="row" id="answerStatusArea">
+    <aside class="col-sm-1 col-md-2 col-xl-2"> </aside>
+    <section class="col-sm-8 col-md-7 col-xl-7">
+      <hr>
+      <p id="answerStatus">Correct!</p>
+    </section>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+  <script src="us-state-capitals-trivia.js" type="text/javascript">
+  </script>
+
+</body>
+
+</html>
