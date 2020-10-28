@@ -23,13 +23,18 @@ $(document).ready(function() {
 
   });
 
-  var currentSelectedCity = [
-    {
-      cityName: null,
-      stateAbbreviation: null
-    }
-  ];
+  currentSelectedCity = {
+    cityName: "Milwaukee",
+    stateAbbreviation: "WI"
+  };
 
+  currentSelectedCity = {
+    cityName: null,
+    stateAbbreviation: null
+  };
+
+
+  loadStateSelect ();
   loadCityArray ();
   displayCities (currentSelectedCity);
 });
@@ -52,6 +57,8 @@ function loadCityArray () {
     }];
 }
 
+
+
 function displayCities (selectedCity) {
   var counter;
   var lengthCityArray = cityArray.length;
@@ -70,7 +77,7 @@ function displayCities (selectedCity) {
     else {
       classes = `list-group-item list-group-item-action`;
     }
-    anchorElement = $(`<a href="#" class="${classes}" cityName="${cityArray[counter].cityName}" stateAbbreviation="${cityArray[counter].stateID}">`);
+    anchorElement = $(`<a href="#" class="${classes}" cityName="${cityArray[counter].cityName}" stateAbbreviation="${cityArray[counter].stateAbbreviation}">`);
 
     // If the stateAbbreviation is NONE, then we don't show a State
 
@@ -82,18 +89,312 @@ function displayCities (selectedCity) {
       anchorElement.text (`${cityArray[counter].cityName}, ${cityArray[counter].stateAbbreviation}`);
     }
 
-    console.log ("adding city");
-
     $("#cityButtonsGoHere").append (anchorElement);
 
     counter ++;
   }
+}
 
+function loadStateSelect () {
+  var stateArray = loadStateArray ();
+  var optionElement;
 
+  // Empty the state array
+  $("#stateInput").empty ();
 
+  // Add the default option, which we will yell at the user for selecting... :-)
+  optionElement = $(`<option selected value="INVALID">`);
+  optionElement.text ("State...");
+  $("#stateInput").append (optionElement);
+
+  stateArray.forEach (writeStateToSelect);
+
+  function writeStateToSelect (stateObject, index) {
+    optionElement = $(`<option value=${stateObject.abbreviation}>`);
+    optionElement.text (stateObject.state);
+    $("#stateInput").append (optionElement);
+
+    console.log (`State:  ${stateObject.state}   Abbreviation:  ${stateObject.abbreviation}`);
+  }
 
 
 }
+
+$("#citySearchButton").on ("click", function (event) {
+  var cityName = $("#cityInput").val ();
+  var stateAbbreviation = $("#stateInput").val ();
+
+  event.preventDefault ();
+
+  console.log (cityName);
+  console.log (stateAbbreviation);
+
+
+
+});
+
+function loadStateArray () {
+  stateArray = [
+    {
+      "state": "Outside US",
+      "abbreviation": "NONE"
+    },
+
+    {
+      "state": "Alabama",
+      "abbreviation": "AL"
+    },
+
+    {
+      "state": "Alaska",
+      "abbreviation": "AK"
+    },
+
+    {
+      "state": "Arizona",
+      "abbreviation": "AZ"
+    },
+
+    {
+      "state": "Arkansas",
+      "abbreviation": "AR"
+    },
+
+    {
+      "state": "California",
+      "abbreviation": "CA"
+    },
+
+    {
+      "state": "Colorado",
+      "abbreviation": "CO"
+    },
+
+    {
+      "state": "Connecticut",
+      "abbreviation": "CT"
+    },
+
+    {
+      "state": "Delaware",
+      "abbreviation": "DE"
+    },
+
+    {
+      "state": "Florida",
+      "abbreviation": "FL"
+    },
+
+    {
+      "state": "Georgia",
+      "abbreviation": "GA"
+    },
+
+    {
+      "state": "Hawaii",
+      "abbreviation": "HI"
+    },
+
+    {
+      "state": "Idaho",
+      "abbreviation": "ID"
+    },
+
+    {
+      "state": "Illinois",
+      "abbreviation": "IL"
+    },
+
+    {
+      "state": "Indiana",
+      "abbreviation": "IN"
+    },
+
+    {
+      "state": "Iowa",
+      "abbreviation": "IA"
+    },
+
+    {
+      "state": "Kansas",
+      "abbreviation": "KS"
+    },
+
+    {
+      "state": "Kentucky",
+      "abbreviation": "KY"
+    },
+
+    {
+      "state": "Lousiana",
+      "abbreviation": "LA"
+    },
+
+    {
+      "state": "Maine",
+      "abbreviation": "ME"
+    },
+
+    {
+      "state": "Maryland",
+      "abbreviation": "MD"
+    },
+
+    {
+      "state": "Massachusetts",
+      "abbreviation": "MA"
+    },
+
+    {
+      "state": "Michigan",
+      "abbreviation": "MI"
+    },
+
+    {
+      "state": "Minnesota",
+      "abbreviation": "MN"
+    },
+
+    {
+      "state": "Mississippi",
+      "abbreviation": "MS"
+    },
+
+    {
+      "state": "Missouri",
+      "abbreviation": "MO"
+    },
+
+    {
+      "state": "Montana",
+      "abbreviation": "MT"
+    },
+
+    {
+      "state": "Nebraska",
+      "abbreviation": "NE"
+    },
+
+    {
+      "state": "Nevada",
+      "abbreviation": "NV"
+    },
+
+    {
+      "state": "New Hampshire",
+      "abbreviation": "NH"
+    },
+
+    {
+      "state": "New Jersey",
+      "abbreviation": "NJ"
+    },
+
+    {
+      "state": "New Mexico",
+      "abbreviation": "NM"
+    },
+
+    {
+      "state": "New York",
+      "abbreviation": "NY"
+    },
+
+    {
+      "state": "North Carolina",
+      "abbreviation": "NC"
+    },
+
+    {
+      "state": "North Dakota",
+      "abbreviation": "ND"
+    },
+
+    {
+      "state": "Ohio",
+      "abbreviation": "OH"
+    },
+
+    {
+      "state": "Oklahoma",
+      "abbreviation": "OK"
+    },
+
+    {
+      "state": "Oregon",
+      "abbreviation": "OR"
+    },
+
+    {
+      "state": "Pennsylvania",
+      "abbreviation": "PA"
+    },
+
+    {
+      "state": "Rhode Island",
+      "abbreviation": "RI"
+    },
+
+    {
+      "state": "South Carolina",
+      "abbreviation": "SC"
+    },
+
+    {
+      "state": "South Dakota",
+      "abbreviation": "SD"
+    },
+
+    {
+      "state": "Tennessee",
+      "abbreviation": "TN"
+    },
+
+    {
+      "state": "Texas",
+      "abbreviation": "TX"
+    },
+
+    {
+      "state": "Utah",
+      "abbreviation": "UT"
+    },
+
+    {
+      "state": "Vermont",
+      "abbreviation": "VT"
+    },
+
+    {
+      "state": "Virginia",
+      "abbreviation": "VA"
+    },
+
+    {
+      "state": "Washington",
+      "abbreviation": "WA"
+    },
+
+    {
+      "state": "West Virginia",
+      "abbreviation": "WV"
+    },
+
+    {
+      "state": "Wisconsin",
+      "abbreviation": "WI"
+    },
+
+    {
+      "state": "Wyoming",
+      "abbreviation": "WY"
+    }
+  ];
+
+  return (stateArray);
+}
+
+
 
 
 
