@@ -129,8 +129,13 @@ $("#citySearchButton").on ("click", function (event) {
   console.log (cityName);
   console.log (stateAbbreviation);
 
+  if (stateAbbreviation === "INVALID") {
+    alert (`Please select a valid state.  If searching outside the United States, select "Outside US"`);
+  }
 
-
+  else if (cityName === "") {
+    alert (`Please enter a city.`);
+  }
 });
 
 function loadStateArray () {
