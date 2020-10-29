@@ -1,17 +1,47 @@
+const openWeatherAPIKey = "0b8af317daa059c03103f8b0517eb971";
 
 var cityArray = [];
 var currentSelectedCity;
 
 
 $(document).ready(function() {
-  var openWeatherAPIKey = "0b8af317daa059c03103f8b0517eb971";
 
   // Empty the schedule to prepare for loading the schedule from JavaScript
   function emptySchedule () {
       $(".container").empty ();
   }
 
-  var queryURL = `https://api.openweathermap.org/data/2.5/weather?units=imperial&q=Paris%2cTX%2cus&APPID=${openWeatherAPIKey}`;
+  currentSelectedCity = {
+    cityName: null,
+    stateAbbreviation: null
+  };
+
+  currentSelectedCity = {
+    cityName: "Milwaukee",
+    stateAbbreviation: "WI"
+  };
+
+  loadStateSelect ();
+  loadCityArray ();
+  sortCityArray ();
+  displayCities (currentSelectedCity);
+
+  displayWeather (currentSelectedCity);
+});
+
+function displayWeather (cityObject) {
+  var queryURL;
+  var h2Element;
+  var pElement;
+  var spanElement;
+  var uvi;
+
+  // If there is no current city, just return
+  if (cityObject.cityName === null) {
+    return;
+  }
+
+  queryURL = buildQueryURL (cityObject);
 
   console.log (`URL: ${queryURL}`);
 
@@ -19,25 +49,134 @@ $(document).ready(function() {
     url: queryURL,
     method: "GET"
   }).then(function(response) {
+    $("#general-city-area").empty ();
+
+    h2Element = $("<h2>");
+
+    if (cityObject.stateAbbreviation === "NONE") {
+      h2Element.text (cityObject.cityName);
+    }
+
+    else {
+      h2Element.text (`${cityObject.cityName}, ${cityObject.stateAbbreviation}`);
+    }
+
+    $("#general-city-area").append (h2Element);
+
+    pElement = $("<p>");
+    pElement.text (`Temperature: ${oneDecimal (response.main.temp)}°F`);
+    $("#general-city-area").append (pElement);
+
+    pElement = $("<p>");
+    pElement.text (`Humidity: ${response.main.humidity}%`);
+    $("#general-city-area").append (pElement);
+
+    pElement = $("<p>");
+    pElement.text (`Wind Speed: ${response.wind.speed} MPH`);
+    $("#general-city-area").append (pElement);
+
     console.log (response);
 
+    console.log (response.coord.lat);
+
+    queryURL = buildQueryURLLong (response.coord.lat, response.coord.lon);
+
+    console.log (queryURL);
+
+    $.ajax({
+      url: queryURL,
+      method: "GET"
+    }).then(function(responseDetailed) {
+      console.log (responseDetailed);
+
+      uvi = parseFloat (responseDetailed.current.uvi);   
+      uviStatus = uviEvaluate (uvi);
+
+      pElement = $("<p>");
+      pElement.text (`UVI: `);
+      $("#general-city-area").append (pElement);
+
+      spanElement = $("<span>");
+      spanElement.text (uvi);
+      spanElement.attr ("class", uviStatus);
+      pElement.append (spanElement);
+    });
   });
+}
 
-  currentSelectedCity = {
-    cityName: "Milwaukee",
-    stateAbbreviation: "WI"
-  };
+function uviEvaluate (uvi) {
+  // Return color dependign on the UVI value
+  // Ranges adopted per FDA - https://www.fda.gov/radiation-emitting-products/tanning/ultraviolet-uv-radiation
 
-  currentSelectedCity = {
-    cityName: null,
-    stateAbbreviation: null
-  };
+  if (uvi < 3) {
+    return ("uviGreen");
+  }
 
+  else if ((uvi >= 3) && (uvi < 6)) {
+    return ("uviYellow");
+  }
 
-  loadStateSelect ();
-  loadCityArray ();
-  displayCities (currentSelectedCity);
-});
+  else if ((uvi >= 6) && (uvi < 8)) {
+    return ("uviOrange");
+  }
+
+  else if ((uvi >= 8) && (uvi < 11)) {
+    return ("uviRed");
+  }
+
+  else {
+    return ("uviViolet");
+  }
+
+  
+
+}
+
+function oneDecimal (numberToChange) {
+  return (Math.ceil (parseFloat (numberToChange) * 10) / 10);
+}
+
+function buildQueryURL (cityObject) {
+  if (cityObject.stateAbbreviation == "NONE") {
+    queryURL = `https://api.openweathermap.org/data/2.5/weather?units=imperial&q=${cityObject.cityName}&APPID=${openWeatherAPIKey}`;
+  }
+
+  else {   
+    queryURL = `https://api.openweathermap.org/data/2.5/weather?units=imperial&q=${cityObject.cityName}%2c${cityObject.stateAbbreviation}%2cus&APPID=${openWeatherAPIKey}`;
+  }
+
+  return queryURL;
+}
+
+function buildQueryURLLong (latitude, longtitude) {
+  return `https://api.openweathermap.org/data/2.5/onecall?units=imperial&lat=${latitude}&lon=${longtitude}&exclude=hourly%2cdaily&APPID=${openWeatherAPIKey}`;
+}
+
+function validateCity (cityObject) {
+  var queryURL;
+  var validCity = false;
+  var response;
+
+  console.log (cityObject.stateAbbreviation);
+
+  queryURL = buildQueryURL (cityObject);
+
+  console.log (`Query URL in validateCity: ${queryURL}`);
+
+  $.ajax({
+    url: queryURL,
+    method: "GET",
+    error: function (errorCondition) {
+      console.log (`City not found.  Error: ${errorCondition.status}  Error text: ${errorCondition.statusText}`);
+      validCity = false;
+    },
+  }).then(function(response) {
+    console.log ("City was found");
+    validCity = true;
+
+    continueCitySearch (validCity, cityObject)
+  });
+}
 
 function loadCityArray () {
   cityArray = [
@@ -56,7 +195,6 @@ function loadCityArray () {
       stateAbbreviation: "NV"
     }];
 }
-
 
 
 function displayCities (selectedCity) {
@@ -114,7 +252,7 @@ function loadStateSelect () {
     optionElement.text (stateObject.state);
     $("#stateInput").append (optionElement);
 
-    console.log (`State:  ${stateObject.state}   Abbreviation:  ${stateObject.abbreviation}`);
+    // console.log (`State:  ${stateObject.state}   Abbreviation:  ${stateObject.abbreviation}`);
   }
 
 
@@ -123,6 +261,7 @@ function loadStateSelect () {
 $("#citySearchButton").on ("click", function (event) {
   var cityName = $("#cityInput").val ();
   var stateAbbreviation = $("#stateInput").val ();
+  var cityStatus;
 
   event.preventDefault ();
 
@@ -131,12 +270,62 @@ $("#citySearchButton").on ("click", function (event) {
 
   if (stateAbbreviation === "INVALID") {
     alert (`Please select a valid state.  If searching outside the United States, select "Outside US"`);
+    return;
   }
 
   else if (cityName === "") {
     alert (`Please enter a city.`);
+    return;
   }
+
+  console.log ("Here");
+
+  validateCity ({
+                 "cityName": cityName, 
+                 "stateAbbreviation": stateAbbreviation});
+
 });
+
+// This is a continuation of the $("citySearchButton").on ("click").... function
+// from validateCity, this is then called with either success or failure
+function continueCitySearch (cityStatus, cityObject) {
+  console.log (`City status:  ${cityStatus}`);
+
+  if (cityStatus) {
+    // City is valid - let's add it, then display weather
+    addCityToList (cityObject.cityName, cityObject.stateAbbreviation);
+    
+    displayWeather (cityObject);
+  }
+
+  else {
+    // City is not valid - let's alert the user
+    if (stateAbbreviation === "NONE") {
+      alert (`The city ${cityObject.cityName} is not valid.  Please enter a different city and try again`);
+    }
+
+    else {
+      alert (`The city ${cityObject.cityName} in state ${cityObject.stateAbbreviation} is not valid.  Please enter a different city/state and try again`);
+    }
+  }
+}
+
+function addCityToList (cityName, stateAbbreviation) {
+  cityArray.push ({
+                    "cityName": cityName,
+                    "stateAbbreviation": stateAbbreviation
+                  });
+
+  sortCityArray ();
+
+  displayCities ({
+                  "cityName": cityName, 
+                  "stateAbbreviation": stateAbbreviation});
+}
+
+function sortCityArray () {
+  cityArray = cityArray.sort((c1, c2) => (c1.cityName.toLowerCase() > c2.cityName.toLowerCase()) ? 1 : (c1.cityName.toLowerCase() < c2.cityName.toLowerCase()) ? -1 : 0);
+}
 
 function loadStateArray () {
   stateArray = [

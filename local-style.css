@@ -14,6 +14,7 @@ body {
 .forecast-day {
     color: white;
 }
+
 aside {
     background-color: rgb(245, 245, 245);
 }
@@ -27,80 +28,29 @@ aside {
     font-size: 17px;
     display: block;
 }
-#highScoreOption {
-    position: relative;
-    left: 30px;
+
+.uviGreen {
+    background-color: lightgreen;
 }
 
-#highScoreBar {
-    position: relative; 
-    left:60px;
+.uviYellow {
+    background-color: yellow;
 }
 
-#timerBar {
-    position: absolute; 
-    right: 20px;
+.uviOrange {
+    background-color: orange;
 }
 
-#penaltyBar {
-    position: absolute; 
-    right: 20px;
-    color: red;
-    font-weight: bold;
-    visibility: hidden;
+.uviRed {
+    background-color: red;
+    color: white;
 }
 
-#welcome {
-    display: block;
+.uviViolet {
+    background-color: violet;
 }
-
-#mainTrivia {
-    display: none;
-}
-
-#resultsWinner {
-    display: none;
-}
-
-#resultsLoser {
-    display: none;
-}
-
-#highScores {
-    display: none;
-}
-
-.highScoreList {
-    background-color: lightblue;
-    list-style-type: none;
-    padding: 5px;    
-}
-
-
-ul.answerList {
-    list-style-type: none;
-    padding: 5px;
-}
-
-li.answerListItem {
-    padding: 0px 0px 5px 10px;
-
-}
-
-#answerStatus {
-    color: red;
-    font-style: italic;
-    padding: 0px 0px 0px 15px;
-    display: block;
-}
-
 
 main {
-}
-
-/* Override font-family for <h1> and .navbar-brand */
-.navbar-brand {
-    font-family: 'Cinzel', serif;
 }
 
 /* Make <h1> bold */
