@@ -12,13 +12,13 @@ $(document).ready(function() {
   }
 
   currentSelectedCity = {
-    cityName: null,
-    stateAbbreviation: null
+    cityName: "Milwaukee",
+    stateAbbreviation: "WI"
   };
 
   currentSelectedCity = {
-    cityName: "Milwaukee",
-    stateAbbreviation: "WI"
+    cityName: null,
+    stateAbbreviation: null
   };
 
   loadStateSelect ();
@@ -29,6 +29,16 @@ $(document).ready(function() {
   displayWeather (currentSelectedCity);
 });
 
+function showWeatherPane (status) {
+  if (status) {
+    $("#overall-weather-display").attr ("style", "display: block");
+  }
+
+  else {
+    $("#overall-weather-display").attr ("style", "display: none");
+  }
+}
+
 function displayWeather (cityObject) {
   var queryURL;
   var h2Element;
@@ -36,11 +46,35 @@ function displayWeather (cityObject) {
   var spanElement;
   var uvi;
   var dayTempArray = [];
+  var dayCount;
+  var forecastLength;
+  var sameDate;
+  var workingDateObj;
+  var divElement;
+  var h6Element;
+  var imgElement;
+
+/*  var dayTempArray = [
+    {
+      month: 01,
+      date: 01,
+      year: 2020,
+      dayCondition: "Cloudy",
+      humidity: 100,
+      tempHigh: 100.1,
+      tempLow: 10.3
+    }
+  ];
+*/
+
 
   // If there is no current city, just return
   if (cityObject.cityName === null) {
+    showWeatherPane (false);
     return;
   }
+
+  showWeatherPane (true);
 
   queryURL = buildQueryURL (cityObject, "weather");
 
@@ -104,23 +138,142 @@ function displayWeather (cityObject) {
 
       queryURL =   queryURL = buildQueryURL (cityObject, "forecast");
 
+      // Yes, I worked my harder than I should have here.  Instead of using the 
+      // "forecast" query, I should have used the "onecall" query I used for UVI.
+
       $.ajax({
         url: queryURL,
         method: "GET"
       }).then(function(responseForecast) {
         console.log (responseForecast);
 
-        var forecastLength = responseForecast.list.length;;
+        dayCount = 0;
+        forecastLength = responseForecast.list.length;;
+
         for (var count = 0; count < forecastLength; count ++) {
-          console.log (responseForecast.list[count].dt_txt);
+          // console.log (responseForecast.list[count].dt_txt);
+          // console.log (responseForecast.list[count].weather[0].main);
+          workingDateObj = new Date (parseInt(responseForecast.list[count].dt) * 1000);
+          // console.log (`Date: ${workingDateObj.getDate ()}`);
 
-          /*
-          if (dayTempArray.length === 0) {
-            responseForecast.list[count].
+          if (count === 0) {
+            //first pass - skip same date checking
+            sameDate = false;
           }
-          */
-        }
 
+          else {
+
+            if ((dayTempArray[dayCount].month === workingDateObj.getMonth ()) &&
+                (dayTempArray[dayCount].date === workingDateObj.getDate ()) &&
+                (dayTempArray[dayCount].year === workingDateObj.getFullYear ())) {
+                  // Date is the same as the current day object
+                  sameDate = true;
+            }
+
+            else {
+              // We have a new date.  Advance dayCount for dayTempArray
+              sameDate = false;
+              dayCount ++;
+            }
+          }
+
+          // console.log ("count: " + count);
+          // console.log ("dayCount: " + dayCount);
+
+          if ((count === 0) || (sameDate === false)) {
+/*
+            dayTempArray[dayCount].month = workingDateObj.getMonth ();
+            dayTempArray[dayCount].date = workingDateObj.getDate ();
+            dayTempArray[dayCount].year = workingDateObj.getFullYear ();
+            dayTempArray[dayCount].dayCondition = responseForecast.list[count].weather[0].main;
+            dayTempArray[dayCount].humidity = parseInt(responseForecast.list[count].main.humidity);
+            dayTempArray[dayCount].tempHigh = oneDecimal(responseForecast.list[count].main.temp_max);
+            dayTempArray[dayCount].tempLow = oneDecimal(responseForecast.list[count].main.temp_min);
+*/
+            dayTempArray.push ({
+              month: workingDateObj.getMonth (),
+              date: workingDateObj.getDate (),
+              year: workingDateObj.getFullYear (),
+              dayCondition: responseForecast.list[count].weather[0].main,
+              humidity: parseInt(responseForecast.list[count].main.humidity),
+              tempHigh: oneDecimal(responseForecast.list[count].main.temp_max),
+              tempLow: oneDecimal(responseForecast.list[count].main.temp_min)
+            });
+          }
+
+          else {
+            // We are on the same day.  Let's see if the high is higher or low lower
+            if (oneDecimal(responseForecast.list[count].main.temp_max) > dayTempArray[dayCount].tempHigh) {
+              dayTempArray[dayCount].tempHigh = oneDecimal(responseForecast.list[count].main.temp_max);
+            }
+
+            if (oneDecimal(responseForecast.list[count].main.temp_min < dayTempArray[dayCount].tempLow)) {
+              dayTempArray[dayCount].tempLow = oneDecimal(responseForecast.list[count].main.temp_low);
+            }
+
+            if (responseForecast.list[count].weather[0].main === "Rain") {
+              dayTempArray[dayCount].dayCondition = "Rain";
+            }
+
+            else if ((responseForecast.list[count].weather[0].main == "Clouds") && (dayTempArray[dayCount].dayCondition == "Clear")) {
+              dayTempArray[dayCount].dayCondition = "Clouds";
+            }
+
+            else {
+              // Should be clear already.  Nothing to do here.
+            }
+          }
+        }
+        console.log (dayTempArray);
+
+        // Now go writeout the object with all the days and associated weather
+        // First clear out existing data
+        $("#weather-boxes-go-here").empty ();
+
+        for (count = 0; count < dayTempArray.length; count ++) {
+          divElement = $("<div>");
+          divElement.attr ("class", "col-3 m-2 bg-primary forecast-day");
+          $("#weather-boxes-go-here").append (divElement);
+
+          h6Element = $("<h6>");
+          h6Element.text (`${dayTempArray[count].month + 1}/${dayTempArray[count].date}/${dayTempArray[count].year}`);
+          divElement.append (h6Element);
+
+          imgElement = $("<img>");
+
+          console.log ("Condition:  " + dayTempArray[count].dayCondition);
+
+          switch (dayTempArray[count].dayCondition) {
+            case "Clouds":
+              imgElement.attr("src", "https://img.icons8.com/color/48/000000/cloud.png");
+              imgElement.attr ("alt", "Cloudy");
+              break;
+
+            case "Rain":
+              imgElement.attr("src", "https://img.icons8.com/color/48/000000/rain.png");
+              imgElement.attr ("alt", "Rainy");
+              break;
+  
+            case "Clear":
+              imgElement.attr("src", "https://img.icons8.com/color/48/000000/summer.png");
+              imgElement.attr ("alt", "Sunny");
+              break;
+          }
+
+          divElement.append (imgElement);
+
+          pElement = $("<p>");
+          pElement.text (`High Temp: ${dayTempArray[count].tempHigh}°F`);
+          divElement.append (pElement);
+
+          pElement = $("<p>");
+          pElement.text (`Low Temp: ${dayTempArray[count].tempLow}°F`);
+          divElement.append (pElement);
+
+          pElement = $("<p>");
+          pElement.text (`Humidity: ${dayTempArray[count].humidity}%`);
+          divElement.append (pElement);
+        }
       });
     });
   });
@@ -215,7 +368,6 @@ function loadCityArray () {
     }];
 }
 
-
 function displayCities (selectedCity) {
   var counter;
   var lengthCityArray = cityArray.length;
@@ -273,8 +425,6 @@ function loadStateSelect () {
 
     // console.log (`State:  ${stateObject.state}   Abbreviation:  ${stateObject.abbreviation}`);
   }
-
-
 }
 
 $("#citySearchButton").on ("click", function (event) {
