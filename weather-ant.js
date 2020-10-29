@@ -35,13 +35,14 @@ function displayWeather (cityObject) {
   var pElement;
   var spanElement;
   var uvi;
+  var dayTempArray = [];
 
   // If there is no current city, just return
   if (cityObject.cityName === null) {
     return;
   }
 
-  queryURL = buildQueryURL (cityObject);
+  queryURL = buildQueryURL (cityObject, "weather");
 
   console.log (`URL: ${queryURL}`);
 
@@ -100,6 +101,27 @@ function displayWeather (cityObject) {
       spanElement.text (uvi);
       spanElement.attr ("class", uviStatus);
       pElement.append (spanElement);
+
+      queryURL =   queryURL = buildQueryURL (cityObject, "forecast");
+
+      $.ajax({
+        url: queryURL,
+        method: "GET"
+      }).then(function(responseForecast) {
+        console.log (responseForecast);
+
+        var forecastLength = responseForecast.list.length;;
+        for (var count = 0; count < forecastLength; count ++) {
+          console.log (responseForecast.list[count].dt_txt);
+
+          /*
+          if (dayTempArray.length === 0) {
+            responseForecast.list[count].
+          }
+          */
+        }
+
+      });
     });
   });
 }
@@ -127,22 +149,19 @@ function uviEvaluate (uvi) {
   else {
     return ("uviViolet");
   }
-
-  
-
 }
 
 function oneDecimal (numberToChange) {
   return (Math.ceil (parseFloat (numberToChange) * 10) / 10);
 }
 
-function buildQueryURL (cityObject) {
+function buildQueryURL (cityObject, weatherType) {
   if (cityObject.stateAbbreviation == "NONE") {
-    queryURL = `https://api.openweathermap.org/data/2.5/weather?units=imperial&q=${cityObject.cityName}&APPID=${openWeatherAPIKey}`;
+    queryURL = `https://api.openweathermap.org/data/2.5/${weatherType}?units=imperial&q=${cityObject.cityName}&APPID=${openWeatherAPIKey}`;
   }
 
   else {   
-    queryURL = `https://api.openweathermap.org/data/2.5/weather?units=imperial&q=${cityObject.cityName}%2c${cityObject.stateAbbreviation}%2cus&APPID=${openWeatherAPIKey}`;
+    queryURL = `https://api.openweathermap.org/data/2.5/${weatherType}?units=imperial&q=${cityObject.cityName}%2c${cityObject.stateAbbreviation}%2cus&APPID=${openWeatherAPIKey}`;
   }
 
   return queryURL;
@@ -159,7 +178,7 @@ function validateCity (cityObject) {
 
   console.log (cityObject.stateAbbreviation);
 
-  queryURL = buildQueryURL (cityObject);
+  queryURL = buildQueryURL (cityObject, "weather");
 
   console.log (`Query URL in validateCity: ${queryURL}`);
 
