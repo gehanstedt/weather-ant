@@ -1,4 +1,5 @@
 const openWeatherAPIKey = "0b8af317daa059c03103f8b0517eb971";
+const maxNumberOfDays = 5;
 
 var cityArray = [];
 var currentSelectedCity;
@@ -45,6 +46,21 @@ $(document).ready(function() {
   
     displayWeather (currentSelectedCity);
   });
+
+  $("#clearButton").on ("click", function (event) {
+    cityArray = [];
+    currentSelectedCity = {
+      cityName: null,
+      stateAbbreviation: null
+    };
+  
+    displayCities (currentSelectedCity);
+    saveSelectedCity ();
+    saveCityArray ();
+    showWeatherPane (false);
+
+  });
+
   
   $("#citySearchButton").on ("click", function (event) {
     var cityName = $("#cityInput").val ();
@@ -519,6 +535,8 @@ $(document).ready(function() {
     if (cityStatus) {
       // City is valid - let's add it, then display weather
       addCityToList (cityObject.cityName, cityObject.stateAbbreviation);
+
+      currentSelectedCity = cityObject;
       
       displayWeather (cityObject);
     }

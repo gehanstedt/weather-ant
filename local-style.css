@@ -1,6 +1,10 @@
 body {
 }
 
+nav {
+    background-color:#256596;
+}
+
 #general-city-area {
     border-style: solid;
     border-right-style: none;
