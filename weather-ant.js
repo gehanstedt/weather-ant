@@ -12,15 +12,8 @@ $(document).ready(function() {
       $(".container").empty ();
   }
 
-  currentSelectedCity = {
-    cityName: "Milwaukee",
-    stateAbbreviation: "WI"
-  };
-
-  currentSelectedCity = {
-    cityName: null,
-    stateAbbreviation: null
-  };
+  //temporary...
+  clearLocalStorage ();
 
   loadCityArray ();
   // loadCityArrayforDevelopment ();
