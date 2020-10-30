@@ -1,8 +1,8 @@
 body {
 }
 
-nav {
-    background-color:#256596;
+#clearButton, #citySearchButton {
+    background-color:#0ad2f5;
 }
 
 #general-city-area {
