@@ -5,7 +5,8 @@ body {
     border-style: solid;
     border-right-style: none;
     border-width: 1px;
-    padding-right: 50%;
+/*    padding-right: 50%; */
+    width: 100%;
     margin-bottom: 20px;
     padding-left: 10px;
     padding-top: 10px;

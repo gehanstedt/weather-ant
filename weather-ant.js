@@ -33,7 +33,7 @@ $(document).ready(function() {
   displayCities (currentSelectedCity);
   displayWeather (currentSelectedCity);
 
-  $(".cityButton").on ("click", function (event) {
+  $("#cityButtonsGoHere").on ("click", ".cityButton", function (event) {
     event.preventDefault ();
     
     console.log ("I'm here");
@@ -314,7 +314,7 @@ $(document).ready(function() {
   
             imgElement = $("<img>");
   
-            console.log ("Condition:  " + dayTempArray[count].dayCondition);
+            // console.log ("Condition:  " + dayTempArray[count].dayCondition);
   
             switch (dayTempArray[count].dayCondition) {
               case "Clouds":
@@ -402,12 +402,12 @@ $(document).ready(function() {
     var validCity = false;
     var response;
   
-    console.log (`cityObject in validateCity`);
-    console.log (cityObject.stateAbbreviation);
+    // console.log (`cityObject in validateCity`);
+    // console.log (cityObject.stateAbbreviation);
   
     queryURL = buildQueryURL (cityObject, "weather");
   
-    console.log (`Query URL in validateCity: ${queryURL}`);
+    // console.log (`Query URL in validateCity: ${queryURL}`);
   
     $.ajax({
       url: queryURL,
@@ -418,7 +418,7 @@ $(document).ready(function() {
         continueCitySearch (validCity, cityObject);
       },
     }).then(function(response) {
-      console.log ("City was found");
+      // console.log ("City was found");
       validCity = true;
   
       continueCitySearch (validCity, cityObject);
@@ -453,8 +453,8 @@ $(document).ready(function() {
     // Empty current buttons
     $("#cityButtonsGoHere").empty ();
 
-    console.log ("Selected city in displayCities:");
-    console.log (selectedCity);
+    // console.log ("Selected city in displayCities:");
+    // console.log (selectedCity);
   
     counter = 0;
     while (counter < lengthCityArray) {
