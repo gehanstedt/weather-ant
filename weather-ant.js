@@ -56,7 +56,7 @@ $(document).ready(function() {
   
     displayCities (currentSelectedCity);
     saveSelectedCity ();
-    saveCityArray ();
+    clearLocalStorage ();
     showWeatherPane (false);
 
   });
@@ -91,6 +91,13 @@ $(document).ready(function() {
   function saveCityArray () {
     localStorage.setItem ("GDOG-Weather-Ant-1.0", JSON.stringify (cityArray));
   }
+
+  function clearLocalStorage () {
+    localStorage.removeItem ("GDOG-Weather-Ant-1.0");
+    localStorage.removeItem ("GDOG-Weather-Ant-Selected-City-1.0");
+  }
+
+
 
   function saveSelectedCity (cityObject) {
     localStorage.setItem ("GDOG-Weather-Ant-Selected-City-1.0", JSON.stringify (cityObject));
