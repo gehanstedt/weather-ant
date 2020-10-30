@@ -21,741 +21,801 @@ $(document).ready(function() {
     stateAbbreviation: null
   };
 
-  loadStateSelect ();
   loadCityArray ();
+  // loadCityArrayforDevelopment ();
+  loadStateSelect ();
+
   sortCityArray ();
+  loadSelectedCity ();
+  console.log ("Starting selected city:");
+  console.log (currentSelectedCity);
+
   displayCities (currentSelectedCity);
-
   displayWeather (currentSelectedCity);
-});
 
-function showWeatherPane (status) {
-  if (status) {
-    $("#overall-weather-display").attr ("style", "display: block");
-  }
-
-  else {
-    $("#overall-weather-display").attr ("style", "display: none");
-  }
-}
-
-function displayWeather (cityObject) {
-  var queryURL;
-  var h2Element;
-  var pElement;
-  var spanElement;
-  var uvi;
-  var dayTempArray = [];
-  var dayCount;
-  var forecastLength;
-  var sameDate;
-  var workingDateObj;
-  var divElement;
-  var h6Element;
-  var imgElement;
-
-/*  var dayTempArray = [
-    {
-      month: 01,
-      date: 01,
-      year: 2020,
-      dayCondition: "Cloudy",
-      humidity: 100,
-      tempHigh: 100.1,
-      tempLow: 10.3
+  $(".cityButton").on ("click", function (event) {
+    event.preventDefault ();
+    
+    console.log ("I'm here");
+    
+    currentSelectedCity = {
+      "cityName": $(this).attr ("cityname"),
+      "stateAbbreviation": $(this).attr ("stateabbreviation")
+    };
+  
+    displayWeather (currentSelectedCity);
+  });
+  
+  $("#citySearchButton").on ("click", function (event) {
+    var cityName = $("#cityInput").val ();
+    var stateAbbreviation = $("#stateInput").val ();
+    var cityStatus;
+  
+    event.preventDefault ();
+  
+    console.log (cityName);
+    console.log (stateAbbreviation);
+  
+    if (stateAbbreviation === "INVALID") {
+      alert (`Please select a valid state.  If searching outside the United States, select "Outside US"`);
+      return;
     }
-  ];
-*/
+  
+    else if (cityName === "") {
+      alert (`Please enter a city.`);
+      return;
+    }
+  
+    validateCity ({
+                   "cityName": cityName, 
+                   "stateAbbreviation": stateAbbreviation});
+  
+  });
 
-
-  // If there is no current city, just return
-  if (cityObject.cityName === null) {
-    showWeatherPane (false);
-    return;
+  function saveCityArray () {
+    localStorage.setItem ("GDOG-Weather-Ant-1.0", JSON.stringify (cityArray));
   }
 
-  showWeatherPane (true);
+  function saveSelectedCity (cityObject) {
+    localStorage.setItem ("GDOG-Weather-Ant-Selected-City-1.0", JSON.stringify (cityObject));
+  }
 
-  queryURL = buildQueryURL (cityObject, "weather");
-
-  console.log (`URL: ${queryURL}`);
-
-  $.ajax({
-    url: queryURL,
-    method: "GET"
-  }).then(function(response) {
-    $("#general-city-area").empty ();
-
-    h2Element = $("<h2>");
-
-    if (cityObject.stateAbbreviation === "NONE") {
-      h2Element.text (cityObject.cityName);
+  function loadCityArray () {
+    var tempArray = JSON.parse(localStorage.getItem("GDOG-Weather-Ant-1.0"));
+    if (tempArray !== null) {
+      cityArray = tempArray;
     }
+  }
 
+  function loadSelectedCity () {
+    var tempArray = JSON.parse(localStorage.getItem("GDOG-Weather-Ant-Selected-City-1.0"));
+    if (tempArray !== null) {
+      currentSelectedCity = tempArray;
+    }
+  }
+
+  function showWeatherPane (status) {
+    if (status) {
+      $("#overall-weather-display").attr ("style", "display: block");
+    }
+  
     else {
-      h2Element.text (`${cityObject.cityName}, ${cityObject.stateAbbreviation}`);
+      $("#overall-weather-display").attr ("style", "display: none");
+    }
+  }
+  
+  function displayWeather (cityObject) {
+    var queryURL;
+    var h2Element;
+    var pElement;
+    var spanElement;
+    var uvi;
+    var dayTempArray = [];
+    var dayCount;
+    var forecastLength;
+    var sameDate;
+    var workingDateObj;
+    var divElement;
+    var h6Element;
+    var imgElement;
+  
+  /*  var dayTempArray = [
+      {
+        month: 01,
+        date: 01,
+        year: 2020,
+        dayCondition: "Cloudy",
+        humidity: 100,
+        tempHigh: 100.1,
+        tempLow: 10.3
+      }
+    ];
+  */
+
+  
+  
+    // If there is no current city, just return
+    if (cityObject.cityName === null) {
+      showWeatherPane (false);
+      return;
     }
 
-    $("#general-city-area").append (h2Element);
+    //Save the current selected city
+    saveSelectedCity (cityObject);
 
-    pElement = $("<p>");
-    pElement.text (`Temperature: ${oneDecimal (response.main.temp)}°F`);
-    $("#general-city-area").append (pElement);
+    //Refresh City list to update the selected city
+    displayCities (currentSelectedCity);
 
-    pElement = $("<p>");
-    pElement.text (`Humidity: ${response.main.humidity}%`);
-    $("#general-city-area").append (pElement);
-
-    pElement = $("<p>");
-    pElement.text (`Wind Speed: ${response.wind.speed} MPH`);
-    $("#general-city-area").append (pElement);
-
-    console.log (response);
-
-    console.log (response.coord.lat);
-
-    queryURL = buildQueryURLLong (response.coord.lat, response.coord.lon);
-
-    console.log (queryURL);
-
+    // Show weather pane (in case it was off)
+    showWeatherPane (true);
+  
+    queryURL = buildQueryURL (cityObject, "weather");
+  
+    console.log (`URL: ${queryURL}`);
+  
     $.ajax({
       url: queryURL,
       method: "GET"
-    }).then(function(responseDetailed) {
-      console.log (responseDetailed);
-
-      uvi = parseFloat (responseDetailed.current.uvi);   
-      uviStatus = uviEvaluate (uvi);
-
+    }).then(function(response) {
+      $("#general-city-area").empty ();
+  
+      h2Element = $("<h2>");
+  
+      if (cityObject.stateAbbreviation === "NONE") {
+        h2Element.text (cityObject.cityName);
+      }
+  
+      else {
+        h2Element.text (`${cityObject.cityName}, ${cityObject.stateAbbreviation}`);
+      }
+  
+      $("#general-city-area").append (h2Element);
+  
       pElement = $("<p>");
-      pElement.text (`UVI: `);
+      pElement.text (`Temperature: ${oneDecimal (response.main.temp)}°F`);
       $("#general-city-area").append (pElement);
-
-      spanElement = $("<span>");
-      spanElement.text (uvi);
-      spanElement.attr ("class", uviStatus);
-      pElement.append (spanElement);
-
-      queryURL =   queryURL = buildQueryURL (cityObject, "forecast");
-
-      // Yes, I worked my harder than I should have here.  Instead of using the 
-      // "forecast" query, I should have used the "onecall" query I used for UVI.
-
+  
+      pElement = $("<p>");
+      pElement.text (`Humidity: ${response.main.humidity}%`);
+      $("#general-city-area").append (pElement);
+  
+      pElement = $("<p>");
+      pElement.text (`Wind Speed: ${response.wind.speed} MPH`);
+      $("#general-city-area").append (pElement);
+  
+      console.log (response);
+  
+      console.log (response.coord.lat);
+  
+      queryURL = buildQueryURLLong (response.coord.lat, response.coord.lon);
+  
+      console.log (queryURL);
+  
       $.ajax({
         url: queryURL,
         method: "GET"
-      }).then(function(responseForecast) {
-        console.log (responseForecast);
-
-        dayCount = 0;
-        forecastLength = responseForecast.list.length;;
-
-        for (var count = 0; count < forecastLength; count ++) {
-          // console.log (responseForecast.list[count].dt_txt);
-          // console.log (responseForecast.list[count].weather[0].main);
-          workingDateObj = new Date (parseInt(responseForecast.list[count].dt) * 1000);
-          // console.log (`Date: ${workingDateObj.getDate ()}`);
-
-          if (count === 0) {
-            //first pass - skip same date checking
-            sameDate = false;
-          }
-
-          else {
-
-            if ((dayTempArray[dayCount].month === workingDateObj.getMonth ()) &&
-                (dayTempArray[dayCount].date === workingDateObj.getDate ()) &&
-                (dayTempArray[dayCount].year === workingDateObj.getFullYear ())) {
-                  // Date is the same as the current day object
-                  sameDate = true;
-            }
-
-            else {
-              // We have a new date.  Advance dayCount for dayTempArray
-              sameDate = false;
-              dayCount ++;
-            }
-          }
-
-          // console.log ("count: " + count);
-          // console.log ("dayCount: " + dayCount);
-
-          if ((count === 0) || (sameDate === false)) {
-/*
-            dayTempArray[dayCount].month = workingDateObj.getMonth ();
-            dayTempArray[dayCount].date = workingDateObj.getDate ();
-            dayTempArray[dayCount].year = workingDateObj.getFullYear ();
-            dayTempArray[dayCount].dayCondition = responseForecast.list[count].weather[0].main;
-            dayTempArray[dayCount].humidity = parseInt(responseForecast.list[count].main.humidity);
-            dayTempArray[dayCount].tempHigh = oneDecimal(responseForecast.list[count].main.temp_max);
-            dayTempArray[dayCount].tempLow = oneDecimal(responseForecast.list[count].main.temp_min);
-*/
-            dayTempArray.push ({
-              month: workingDateObj.getMonth (),
-              date: workingDateObj.getDate (),
-              year: workingDateObj.getFullYear (),
-              dayCondition: responseForecast.list[count].weather[0].main,
-              humidity: parseInt(responseForecast.list[count].main.humidity),
-              tempHigh: oneDecimal(responseForecast.list[count].main.temp_max),
-              tempLow: oneDecimal(responseForecast.list[count].main.temp_min)
-            });
-          }
-
-          else {
-            // We are on the same day.  Let's see if the high is higher or low lower
-            if (oneDecimal(responseForecast.list[count].main.temp_max) > dayTempArray[dayCount].tempHigh) {
-              dayTempArray[dayCount].tempHigh = oneDecimal(responseForecast.list[count].main.temp_max);
-            }
-
-            if (oneDecimal(responseForecast.list[count].main.temp_min < dayTempArray[dayCount].tempLow)) {
-              dayTempArray[dayCount].tempLow = oneDecimal(responseForecast.list[count].main.temp_low);
-            }
-
-            if (responseForecast.list[count].weather[0].main === "Rain") {
-              dayTempArray[dayCount].dayCondition = "Rain";
-            }
-
-            else if ((responseForecast.list[count].weather[0].main == "Clouds") && (dayTempArray[dayCount].dayCondition == "Clear")) {
-              dayTempArray[dayCount].dayCondition = "Clouds";
-            }
-
-            else {
-              // Should be clear already.  Nothing to do here.
-            }
-          }
-        }
-        console.log (dayTempArray);
-
-        // Now go writeout the object with all the days and associated weather
-        // First clear out existing data
-        $("#weather-boxes-go-here").empty ();
-
-        for (count = 0; count < dayTempArray.length; count ++) {
-          divElement = $("<div>");
-          divElement.attr ("class", "col-3 m-2 bg-primary forecast-day");
-          $("#weather-boxes-go-here").append (divElement);
-
-          h6Element = $("<h6>");
-          h6Element.text (`${dayTempArray[count].month + 1}/${dayTempArray[count].date}/${dayTempArray[count].year}`);
-          divElement.append (h6Element);
-
-          imgElement = $("<img>");
-
-          console.log ("Condition:  " + dayTempArray[count].dayCondition);
-
-          switch (dayTempArray[count].dayCondition) {
-            case "Clouds":
-              imgElement.attr("src", "https://img.icons8.com/color/48/000000/cloud.png");
-              imgElement.attr ("alt", "Cloudy");
-              break;
-
-            case "Rain":
-              imgElement.attr("src", "https://img.icons8.com/color/48/000000/rain.png");
-              imgElement.attr ("alt", "Rainy");
-              break;
+      }).then(function(responseDetailed) {
+        console.log (responseDetailed);
   
-            case "Clear":
-              imgElement.attr("src", "https://img.icons8.com/color/48/000000/summer.png");
-              imgElement.attr ("alt", "Sunny");
-              break;
+        uvi = parseFloat (responseDetailed.current.uvi);   
+        uviStatus = uviEvaluate (uvi);
+  
+        pElement = $("<p>");
+        pElement.text (`UVI: `);
+        $("#general-city-area").append (pElement);
+  
+        spanElement = $("<span>");
+        spanElement.text (uvi);
+        spanElement.attr ("class", uviStatus);
+        pElement.append (spanElement);
+  
+        queryURL =   queryURL = buildQueryURL (cityObject, "forecast");
+  
+        // Yes, I worked my harder than I should have here.  Instead of using the 
+        // "forecast" query, I should have used the "onecall" query I used for UVI.
+  
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+        }).then(function(responseForecast) {
+          console.log (responseForecast);
+  
+          dayCount = 0;
+          forecastLength = responseForecast.list.length;;
+  
+          for (var count = 0; count < forecastLength; count ++) {
+            // console.log (responseForecast.list[count].dt_txt);
+            // console.log (responseForecast.list[count].weather[0].main);
+            workingDateObj = new Date (parseInt(responseForecast.list[count].dt) * 1000);
+            // console.log (`Date: ${workingDateObj.getDate ()}`);
+  
+            if (count === 0) {
+              //first pass - skip same date checking
+              sameDate = false;
+            }
+  
+            else {
+  
+              if ((dayTempArray[dayCount].month === workingDateObj.getMonth ()) &&
+                  (dayTempArray[dayCount].date === workingDateObj.getDate ()) &&
+                  (dayTempArray[dayCount].year === workingDateObj.getFullYear ())) {
+                    // Date is the same as the current day object
+                    sameDate = true;
+              }
+  
+              else {
+                // We have a new date.  Advance dayCount for dayTempArray
+                sameDate = false;
+                dayCount ++;
+              }
+            }
+  
+            // console.log ("count: " + count);
+            // console.log ("dayCount: " + dayCount);
+  
+            if ((count === 0) || (sameDate === false)) {
+  /*
+              dayTempArray[dayCount].month = workingDateObj.getMonth ();
+              dayTempArray[dayCount].date = workingDateObj.getDate ();
+              dayTempArray[dayCount].year = workingDateObj.getFullYear ();
+              dayTempArray[dayCount].dayCondition = responseForecast.list[count].weather[0].main;
+              dayTempArray[dayCount].humidity = parseInt(responseForecast.list[count].main.humidity);
+              dayTempArray[dayCount].tempHigh = oneDecimal(responseForecast.list[count].main.temp_max);
+              dayTempArray[dayCount].tempLow = oneDecimal(responseForecast.list[count].main.temp_min);
+  */
+              dayTempArray.push ({
+                month: workingDateObj.getMonth (),
+                date: workingDateObj.getDate (),
+                year: workingDateObj.getFullYear (),
+                dayCondition: responseForecast.list[count].weather[0].main,
+                humidity: parseInt(responseForecast.list[count].main.humidity),
+                tempHigh: oneDecimal(responseForecast.list[count].main.temp_max),
+                tempLow: oneDecimal(responseForecast.list[count].main.temp_min)
+              });
+            }
+  
+            else {
+              // We are on the same day.  Let's see if the high is higher or low lower
+              if (oneDecimal(responseForecast.list[count].main.temp_max) > dayTempArray[dayCount].tempHigh) {
+                dayTempArray[dayCount].tempHigh = oneDecimal(responseForecast.list[count].main.temp_max);
+              }
+  
+              if (oneDecimal(responseForecast.list[count].main.temp_min < dayTempArray[dayCount].tempLow)) {
+                dayTempArray[dayCount].tempLow = oneDecimal(responseForecast.list[count].main.temp_low);
+              }
+  
+              if (responseForecast.list[count].weather[0].main === "Rain") {
+                dayTempArray[dayCount].dayCondition = "Rain";
+              }
+  
+              else if ((responseForecast.list[count].weather[0].main == "Clouds") && (dayTempArray[dayCount].dayCondition == "Clear")) {
+                dayTempArray[dayCount].dayCondition = "Clouds";
+              }
+  
+              else {
+                // Should be clear already.  Nothing to do here.
+              }
+            }
           }
-
-          divElement.append (imgElement);
-
-          pElement = $("<p>");
-          pElement.text (`High Temp: ${dayTempArray[count].tempHigh}°F`);
-          divElement.append (pElement);
-
-          pElement = $("<p>");
-          pElement.text (`Low Temp: ${dayTempArray[count].tempLow}°F`);
-          divElement.append (pElement);
-
-          pElement = $("<p>");
-          pElement.text (`Humidity: ${dayTempArray[count].humidity}%`);
-          divElement.append (pElement);
-        }
+          console.log (dayTempArray);
+  
+          // Now go writeout the object with all the days and associated weather
+          // First clear out existing data
+          $("#weather-boxes-go-here").empty ();
+  
+          for (count = 0; count < dayTempArray.length; count ++) {
+            divElement = $("<div>");
+            divElement.attr ("class", "col-3 m-2 bg-primary forecast-day");
+            $("#weather-boxes-go-here").append (divElement);
+  
+            h6Element = $("<h6>");
+            h6Element.text (`${dayTempArray[count].month + 1}/${dayTempArray[count].date}/${dayTempArray[count].year}`);
+            divElement.append (h6Element);
+  
+            imgElement = $("<img>");
+  
+            console.log ("Condition:  " + dayTempArray[count].dayCondition);
+  
+            switch (dayTempArray[count].dayCondition) {
+              case "Clouds":
+                imgElement.attr("src", "https://img.icons8.com/color/48/000000/cloud.png");
+                imgElement.attr ("alt", "Cloudy");
+                break;
+  
+              case "Rain":
+                imgElement.attr("src", "https://img.icons8.com/color/48/000000/rain.png");
+                imgElement.attr ("alt", "Rainy");
+                break;
+    
+              case "Clear":
+                imgElement.attr("src", "https://img.icons8.com/color/48/000000/summer.png");
+                imgElement.attr ("alt", "Sunny");
+                break;
+            }
+  
+            divElement.append (imgElement);
+  
+            pElement = $("<p>");
+            pElement.text (`High Temp: ${dayTempArray[count].tempHigh}°F`);
+            divElement.append (pElement);
+  
+            pElement = $("<p>");
+            pElement.text (`Low Temp: ${dayTempArray[count].tempLow}°F`);
+            divElement.append (pElement);
+  
+            pElement = $("<p>");
+            pElement.text (`Humidity: ${dayTempArray[count].humidity}%`);
+            divElement.append (pElement);
+          }
+        });
       });
     });
-  });
-}
-
-function uviEvaluate (uvi) {
-  // Return color dependign on the UVI value
-  // Ranges adopted per FDA - https://www.fda.gov/radiation-emitting-products/tanning/ultraviolet-uv-radiation
-
-  if (uvi < 3) {
-    return ("uviGreen");
   }
-
-  else if ((uvi >= 3) && (uvi < 6)) {
-    return ("uviYellow");
-  }
-
-  else if ((uvi >= 6) && (uvi < 8)) {
-    return ("uviOrange");
-  }
-
-  else if ((uvi >= 8) && (uvi < 11)) {
-    return ("uviRed");
-  }
-
-  else {
-    return ("uviViolet");
-  }
-}
-
-function oneDecimal (numberToChange) {
-  return (Math.ceil (parseFloat (numberToChange) * 10) / 10);
-}
-
-function buildQueryURL (cityObject, weatherType) {
-  if (cityObject.stateAbbreviation == "NONE") {
-    queryURL = `https://api.openweathermap.org/data/2.5/${weatherType}?units=imperial&q=${cityObject.cityName}&APPID=${openWeatherAPIKey}`;
-  }
-
-  else {   
-    queryURL = `https://api.openweathermap.org/data/2.5/${weatherType}?units=imperial&q=${cityObject.cityName}%2c${cityObject.stateAbbreviation}%2cus&APPID=${openWeatherAPIKey}`;
-  }
-
-  return queryURL;
-}
-
-function buildQueryURLLong (latitude, longtitude) {
-  return `https://api.openweathermap.org/data/2.5/onecall?units=imperial&lat=${latitude}&lon=${longtitude}&exclude=hourly%2cdaily&APPID=${openWeatherAPIKey}`;
-}
-
-function validateCity (cityObject) {
-  var queryURL;
-  var validCity = false;
-  var response;
-
-  console.log (cityObject.stateAbbreviation);
-
-  queryURL = buildQueryURL (cityObject, "weather");
-
-  console.log (`Query URL in validateCity: ${queryURL}`);
-
-  $.ajax({
-    url: queryURL,
-    method: "GET",
-    error: function (errorCondition) {
-      console.log (`City not found.  Error: ${errorCondition.status}  Error text: ${errorCondition.statusText}`);
-      validCity = false;
-    },
-  }).then(function(response) {
-    console.log ("City was found");
-    validCity = true;
-
-    continueCitySearch (validCity, cityObject)
-  });
-}
-
-function loadCityArray () {
-  cityArray = [
-    {
-      cityName: "Atlanta",
-      stateAbbreviation: "GA"
-    },
   
-    {
-      cityName: "Milwaukee",
-      stateAbbreviation: "WI"
-    },
-
-    {
-      cityName: "Las Vegas",
-      stateAbbreviation: "NV"
-    }];
-}
-
-function displayCities (selectedCity) {
-  var counter;
-  var lengthCityArray = cityArray.length;
-  var anchorElement;
-  var classes;
-
-  // Empty current buttons
-  $("#cityButtonsGoHere").empty ();
-
-  counter = 0;
-  while (counter < lengthCityArray) {
-    if ((selectedCity.cityName === cityArray[counter].cityName) && (selectedCity.stateAbbreviation == cityArray[counter].stateAbbreviation)) {
-      classes = `list-group-item list-group-item-action active`;
+  function uviEvaluate (uvi) {
+    // Return color dependign on the UVI value
+    // Ranges adopted per FDA - https://www.fda.gov/radiation-emitting-products/tanning/ultraviolet-uv-radiation
+  
+    if (uvi < 3) {
+      return ("uviGreen");
     }
-
+  
+    else if ((uvi >= 3) && (uvi < 6)) {
+      return ("uviYellow");
+    }
+  
+    else if ((uvi >= 6) && (uvi < 8)) {
+      return ("uviOrange");
+    }
+  
+    else if ((uvi >= 8) && (uvi < 11)) {
+      return ("uviRed");
+    }
+  
     else {
-      classes = `list-group-item list-group-item-action`;
+      return ("uviViolet");
     }
-    anchorElement = $(`<a href="#" class="${classes}" cityName="${cityArray[counter].cityName}" stateAbbreviation="${cityArray[counter].stateAbbreviation}">`);
-
-    // If the stateAbbreviation is NONE, then we don't show a State
-
-    if (cityArray[counter].stateAbbreviation === "NONE") {
-      anchorElement.text (`${cityArray[counter].cityName}`);
+  }
+  
+  function oneDecimal (numberToChange) {
+    return (Math.ceil (parseFloat (numberToChange) * 10) / 10);
+  }
+  
+  function buildQueryURL (cityObject, weatherType) {
+    if (cityObject.stateAbbreviation == "NONE") {
+      queryURL = `https://api.openweathermap.org/data/2.5/${weatherType}?units=imperial&q=${cityObject.cityName}&APPID=${openWeatherAPIKey}`;
     }
-
-    else {
-      anchorElement.text (`${cityArray[counter].cityName}, ${cityArray[counter].stateAbbreviation}`);
+  
+    else {   
+      queryURL = `https://api.openweathermap.org/data/2.5/${weatherType}?units=imperial&q=${cityObject.cityName}%2c${cityObject.stateAbbreviation}%2cus&APPID=${openWeatherAPIKey}`;
     }
-
-    $("#cityButtonsGoHere").append (anchorElement);
-
-    counter ++;
+  
+    return queryURL;
   }
-}
-
-function loadStateSelect () {
-  var stateArray = loadStateArray ();
-  var optionElement;
-
-  // Empty the state array
-  $("#stateInput").empty ();
-
-  // Add the default option, which we will yell at the user for selecting... :-)
-  optionElement = $(`<option selected value="INVALID">`);
-  optionElement.text ("State...");
-  $("#stateInput").append (optionElement);
-
-  stateArray.forEach (writeStateToSelect);
-
-  function writeStateToSelect (stateObject, index) {
-    optionElement = $(`<option value=${stateObject.abbreviation}>`);
-    optionElement.text (stateObject.state);
-    $("#stateInput").append (optionElement);
-
-    // console.log (`State:  ${stateObject.state}   Abbreviation:  ${stateObject.abbreviation}`);
+  
+  function buildQueryURLLong (latitude, longtitude) {
+    return `https://api.openweathermap.org/data/2.5/onecall?units=imperial&lat=${latitude}&lon=${longtitude}&exclude=hourly%2cdaily&APPID=${openWeatherAPIKey}`;
   }
-}
-
-$("#citySearchButton").on ("click", function (event) {
-  var cityName = $("#cityInput").val ();
-  var stateAbbreviation = $("#stateInput").val ();
-  var cityStatus;
-
-  event.preventDefault ();
-
-  console.log (cityName);
-  console.log (stateAbbreviation);
-
-  if (stateAbbreviation === "INVALID") {
-    alert (`Please select a valid state.  If searching outside the United States, select "Outside US"`);
-    return;
+  
+  function validateCity (cityObject) {
+    var queryURL;
+    var validCity = false;
+    var response;
+  
+    console.log (`cityObject in validateCity`);
+    console.log (cityObject.stateAbbreviation);
+  
+    queryURL = buildQueryURL (cityObject, "weather");
+  
+    console.log (`Query URL in validateCity: ${queryURL}`);
+  
+    $.ajax({
+      url: queryURL,
+      method: "GET",
+      error: function (errorCondition) {
+        console.log (`City not found.  Error: ${errorCondition.status}  Error text: ${errorCondition.statusText}`);
+        validCity = false;
+        continueCitySearch (validCity, cityObject);
+      },
+    }).then(function(response) {
+      console.log ("City was found");
+      validCity = true;
+  
+      continueCitySearch (validCity, cityObject);
+    });
   }
-
-  else if (cityName === "") {
-    alert (`Please enter a city.`);
-    return;
-  }
-
-  console.log ("Here");
-
-  validateCity ({
-                 "cityName": cityName, 
-                 "stateAbbreviation": stateAbbreviation});
-
-});
-
-// This is a continuation of the $("citySearchButton").on ("click").... function
-// from validateCity, this is then called with either success or failure
-function continueCitySearch (cityStatus, cityObject) {
-  console.log (`City status:  ${cityStatus}`);
-
-  if (cityStatus) {
-    // City is valid - let's add it, then display weather
-    addCityToList (cityObject.cityName, cityObject.stateAbbreviation);
+  
+  // Function was used during development
+  function loadCityArrayforDevelopment () {
+    cityArray = [
+      {
+        cityName: "Atlanta",
+        stateAbbreviation: "GA"
+      },
     
-    displayWeather (cityObject);
+      {
+        cityName: "Menomonee Falls",
+        stateAbbreviation: "WI"
+      },
+  
+      {
+        cityName: "Las Vegas",
+        stateAbbreviation: "NV"
+      }];
   }
+  
+  function displayCities (selectedCity) {
+    var counter;
+    var lengthCityArray = cityArray.length;
+    var anchorElement;
+    var classes;
+  
+    // Empty current buttons
+    $("#cityButtonsGoHere").empty ();
 
-  else {
-    // City is not valid - let's alert the user
-    if (stateAbbreviation === "NONE") {
-      alert (`The city ${cityObject.cityName} is not valid.  Please enter a different city and try again`);
+    console.log ("Selected city in displayCities:");
+    console.log (selectedCity);
+  
+    counter = 0;
+    while (counter < lengthCityArray) {
+      if ((selectedCity.cityName === cityArray[counter].cityName) && (selectedCity.stateAbbreviation == cityArray[counter].stateAbbreviation)) {
+        classes = `cityButton list-group-item list-group-item-action active`;
+      }
+  
+      else {
+        classes = `cityButton list-group-item list-group-item-action`;
+      }
+      anchorElement = $(`<a href="#">`);
+      anchorElement.attr ("class", classes);
+      anchorElement.attr ("cityName", cityArray[counter].cityName);
+      anchorElement.attr ("stateAbbreviation", cityArray[counter].stateAbbreviation)
+      // anchorElement.attr ("id", "cityButton");
+  
+      // If the stateAbbreviation is NONE, then we don't show a State
+  
+      if (cityArray[counter].stateAbbreviation === "NONE") {
+        anchorElement.text (`${cityArray[counter].cityName}`);
+      }
+  
+      else {
+        anchorElement.text (`${cityArray[counter].cityName}, ${cityArray[counter].stateAbbreviation}`);
+      }
+  
+      $("#cityButtonsGoHere").append (anchorElement);
+  
+      counter ++;
     }
+  }
+  
+  function loadStateSelect () {
+    var stateArray = loadStateArray ();
+    var optionElement;
+  
+    // Empty the state array
+    $("#stateInput").empty ();
+  
+    // Add the default option, which we will yell at the user for selecting... :-)
+    optionElement = $(`<option selected value="INVALID">`);
+    optionElement.text ("State...");
+    $("#stateInput").append (optionElement);
+  
+    stateArray.forEach (writeStateToSelect);
+  
+    function writeStateToSelect (stateObject, index) {
+      optionElement = $(`<option value=${stateObject.abbreviation}>`);
+      optionElement.text (stateObject.state);
+      $("#stateInput").append (optionElement);
+  
+      // console.log (`State:  ${stateObject.state}   Abbreviation:  ${stateObject.abbreviation}`);
+    }
+  }
+  
+  
+  // This is a continuation of the $("citySearchButton").on ("click").... function
+  // from validateCity, this is then called with either success or failure
+  function continueCitySearch (cityStatus, cityObject) {
+    console.log (`City status:  ${cityStatus}`);
 
+    if (cityStatus) {
+      // City is valid - let's add it, then display weather
+      addCityToList (cityObject.cityName, cityObject.stateAbbreviation);
+      
+      displayWeather (cityObject);
+    }
+  
     else {
-      alert (`The city ${cityObject.cityName} in state ${cityObject.stateAbbreviation} is not valid.  Please enter a different city/state and try again`);
+      // City is not valid - let's alert the user
+      if (cityObject.stateAbbreviation === "NONE") {
+        alert (`The city ${cityObject.cityName} is not valid.  Please enter a different city and try again`);
+      }
+  
+      else {
+        alert (`The city ${cityObject.cityName} in state ${cityObject.stateAbbreviation} is not valid.  Please enter a different city/state and try again`);
+      }
     }
   }
-}
+  
+  function addCityToList (cityName, stateAbbreviation) {
+    cityArray.push ({
+                      "cityName": cityName,
+                      "stateAbbreviation": stateAbbreviation
+                    });
+  
+    sortCityArray ();
 
-function addCityToList (cityName, stateAbbreviation) {
-  cityArray.push ({
-                    "cityName": cityName,
+    saveCityArray ();
+  
+    displayCities ({
+                    "cityName": cityName, 
                     "stateAbbreviation": stateAbbreviation
                   });
-
-  sortCityArray ();
-
-  displayCities ({
-                  "cityName": cityName, 
-                  "stateAbbreviation": stateAbbreviation});
-}
-
-function sortCityArray () {
-  cityArray = cityArray.sort((c1, c2) => (c1.cityName.toLowerCase() > c2.cityName.toLowerCase()) ? 1 : (c1.cityName.toLowerCase() < c2.cityName.toLowerCase()) ? -1 : 0);
-}
-
-function loadStateArray () {
-  stateArray = [
-    {
-      "state": "Outside US",
-      "abbreviation": "NONE"
-    },
-
-    {
-      "state": "Alabama",
-      "abbreviation": "AL"
-    },
-
-    {
-      "state": "Alaska",
-      "abbreviation": "AK"
-    },
-
-    {
-      "state": "Arizona",
-      "abbreviation": "AZ"
-    },
-
-    {
-      "state": "Arkansas",
-      "abbreviation": "AR"
-    },
-
-    {
-      "state": "California",
-      "abbreviation": "CA"
-    },
-
-    {
-      "state": "Colorado",
-      "abbreviation": "CO"
-    },
-
-    {
-      "state": "Connecticut",
-      "abbreviation": "CT"
-    },
-
-    {
-      "state": "Delaware",
-      "abbreviation": "DE"
-    },
-
-    {
-      "state": "Florida",
-      "abbreviation": "FL"
-    },
-
-    {
-      "state": "Georgia",
-      "abbreviation": "GA"
-    },
-
-    {
-      "state": "Hawaii",
-      "abbreviation": "HI"
-    },
-
-    {
-      "state": "Idaho",
-      "abbreviation": "ID"
-    },
-
-    {
-      "state": "Illinois",
-      "abbreviation": "IL"
-    },
-
-    {
-      "state": "Indiana",
-      "abbreviation": "IN"
-    },
-
-    {
-      "state": "Iowa",
-      "abbreviation": "IA"
-    },
-
-    {
-      "state": "Kansas",
-      "abbreviation": "KS"
-    },
-
-    {
-      "state": "Kentucky",
-      "abbreviation": "KY"
-    },
-
-    {
-      "state": "Lousiana",
-      "abbreviation": "LA"
-    },
-
-    {
-      "state": "Maine",
-      "abbreviation": "ME"
-    },
-
-    {
-      "state": "Maryland",
-      "abbreviation": "MD"
-    },
-
-    {
-      "state": "Massachusetts",
-      "abbreviation": "MA"
-    },
-
-    {
-      "state": "Michigan",
-      "abbreviation": "MI"
-    },
-
-    {
-      "state": "Minnesota",
-      "abbreviation": "MN"
-    },
-
-    {
-      "state": "Mississippi",
-      "abbreviation": "MS"
-    },
-
-    {
-      "state": "Missouri",
-      "abbreviation": "MO"
-    },
-
-    {
-      "state": "Montana",
-      "abbreviation": "MT"
-    },
-
-    {
-      "state": "Nebraska",
-      "abbreviation": "NE"
-    },
-
-    {
-      "state": "Nevada",
-      "abbreviation": "NV"
-    },
-
-    {
-      "state": "New Hampshire",
-      "abbreviation": "NH"
-    },
-
-    {
-      "state": "New Jersey",
-      "abbreviation": "NJ"
-    },
-
-    {
-      "state": "New Mexico",
-      "abbreviation": "NM"
-    },
-
-    {
-      "state": "New York",
-      "abbreviation": "NY"
-    },
-
-    {
-      "state": "North Carolina",
-      "abbreviation": "NC"
-    },
-
-    {
-      "state": "North Dakota",
-      "abbreviation": "ND"
-    },
-
-    {
-      "state": "Ohio",
-      "abbreviation": "OH"
-    },
-
-    {
-      "state": "Oklahoma",
-      "abbreviation": "OK"
-    },
-
-    {
-      "state": "Oregon",
-      "abbreviation": "OR"
-    },
-
-    {
-      "state": "Pennsylvania",
-      "abbreviation": "PA"
-    },
-
-    {
-      "state": "Rhode Island",
-      "abbreviation": "RI"
-    },
-
-    {
-      "state": "South Carolina",
-      "abbreviation": "SC"
-    },
-
-    {
-      "state": "South Dakota",
-      "abbreviation": "SD"
-    },
-
-    {
-      "state": "Tennessee",
-      "abbreviation": "TN"
-    },
-
-    {
-      "state": "Texas",
-      "abbreviation": "TX"
-    },
-
-    {
-      "state": "Utah",
-      "abbreviation": "UT"
-    },
-
-    {
-      "state": "Vermont",
-      "abbreviation": "VT"
-    },
-
-    {
-      "state": "Virginia",
-      "abbreviation": "VA"
-    },
-
-    {
-      "state": "Washington",
-      "abbreviation": "WA"
-    },
-
-    {
-      "state": "West Virginia",
-      "abbreviation": "WV"
-    },
-
-    {
-      "state": "Wisconsin",
-      "abbreviation": "WI"
-    },
-
-    {
-      "state": "Wyoming",
-      "abbreviation": "WY"
-    }
-  ];
-
-  return (stateArray);
-}
+  }
+  
+  function sortCityArray () {
+    cityArray = cityArray.sort((c1, c2) => (c1.cityName.toLowerCase() > c2.cityName.toLowerCase()) ? 1 : (c1.cityName.toLowerCase() < c2.cityName.toLowerCase()) ? -1 : 0);
+  }
+  
+  function loadStateArray () {
+    stateArray = [
+      {
+        "state": "Outside US",
+        "abbreviation": "NONE"
+      },
+  
+      {
+        "state": "Alabama",
+        "abbreviation": "AL"
+      },
+  
+      {
+        "state": "Alaska",
+        "abbreviation": "AK"
+      },
+  
+      {
+        "state": "Arizona",
+        "abbreviation": "AZ"
+      },
+  
+      {
+        "state": "Arkansas",
+        "abbreviation": "AR"
+      },
+  
+      {
+        "state": "California",
+        "abbreviation": "CA"
+      },
+  
+      {
+        "state": "Colorado",
+        "abbreviation": "CO"
+      },
+  
+      {
+        "state": "Connecticut",
+        "abbreviation": "CT"
+      },
+  
+      {
+        "state": "Delaware",
+        "abbreviation": "DE"
+      },
+  
+      {
+        "state": "Florida",
+        "abbreviation": "FL"
+      },
+  
+      {
+        "state": "Georgia",
+        "abbreviation": "GA"
+      },
+  
+      {
+        "state": "Hawaii",
+        "abbreviation": "HI"
+      },
+  
+      {
+        "state": "Idaho",
+        "abbreviation": "ID"
+      },
+  
+      {
+        "state": "Illinois",
+        "abbreviation": "IL"
+      },
+  
+      {
+        "state": "Indiana",
+        "abbreviation": "IN"
+      },
+  
+      {
+        "state": "Iowa",
+        "abbreviation": "IA"
+      },
+  
+      {
+        "state": "Kansas",
+        "abbreviation": "KS"
+      },
+  
+      {
+        "state": "Kentucky",
+        "abbreviation": "KY"
+      },
+  
+      {
+        "state": "Lousiana",
+        "abbreviation": "LA"
+      },
+  
+      {
+        "state": "Maine",
+        "abbreviation": "ME"
+      },
+  
+      {
+        "state": "Maryland",
+        "abbreviation": "MD"
+      },
+  
+      {
+        "state": "Massachusetts",
+        "abbreviation": "MA"
+      },
+  
+      {
+        "state": "Michigan",
+        "abbreviation": "MI"
+      },
+  
+      {
+        "state": "Minnesota",
+        "abbreviation": "MN"
+      },
+  
+      {
+        "state": "Mississippi",
+        "abbreviation": "MS"
+      },
+  
+      {
+        "state": "Missouri",
+        "abbreviation": "MO"
+      },
+  
+      {
+        "state": "Montana",
+        "abbreviation": "MT"
+      },
+  
+      {
+        "state": "Nebraska",
+        "abbreviation": "NE"
+      },
+  
+      {
+        "state": "Nevada",
+        "abbreviation": "NV"
+      },
+  
+      {
+        "state": "New Hampshire",
+        "abbreviation": "NH"
+      },
+  
+      {
+        "state": "New Jersey",
+        "abbreviation": "NJ"
+      },
+  
+      {
+        "state": "New Mexico",
+        "abbreviation": "NM"
+      },
+  
+      {
+        "state": "New York",
+        "abbreviation": "NY"
+      },
+  
+      {
+        "state": "North Carolina",
+        "abbreviation": "NC"
+      },
+  
+      {
+        "state": "North Dakota",
+        "abbreviation": "ND"
+      },
+  
+      {
+        "state": "Ohio",
+        "abbreviation": "OH"
+      },
+  
+      {
+        "state": "Oklahoma",
+        "abbreviation": "OK"
+      },
+  
+      {
+        "state": "Oregon",
+        "abbreviation": "OR"
+      },
+  
+      {
+        "state": "Pennsylvania",
+        "abbreviation": "PA"
+      },
+  
+      {
+        "state": "Rhode Island",
+        "abbreviation": "RI"
+      },
+  
+      {
+        "state": "South Carolina",
+        "abbreviation": "SC"
+      },
+  
+      {
+        "state": "South Dakota",
+        "abbreviation": "SD"
+      },
+  
+      {
+        "state": "Tennessee",
+        "abbreviation": "TN"
+      },
+  
+      {
+        "state": "Texas",
+        "abbreviation": "TX"
+      },
+  
+      {
+        "state": "Utah",
+        "abbreviation": "UT"
+      },
+  
+      {
+        "state": "Vermont",
+        "abbreviation": "VT"
+      },
+  
+      {
+        "state": "Virginia",
+        "abbreviation": "VA"
+      },
+  
+      {
+        "state": "Washington",
+        "abbreviation": "WA"
+      },
+  
+      {
+        "state": "West Virginia",
+        "abbreviation": "WV"
+      },
+  
+      {
+        "state": "Wisconsin",
+        "abbreviation": "WI"
+      },
+  
+      {
+        "state": "Wyoming",
+        "abbreviation": "WY"
+      }
+    ];
+  
+    return (stateArray);
+  }
+});
 
 
 
