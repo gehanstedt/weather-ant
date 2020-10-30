@@ -15,6 +15,11 @@ $(document).ready(function() {
   //temporary...
   clearLocalStorage ();
 
+  currentSelectedCity = {
+    cityName: null,
+    stateAbbreviation: null
+  };
+  
   loadCityArray ();
   // loadCityArrayforDevelopment ();
   loadStateSelect ();
