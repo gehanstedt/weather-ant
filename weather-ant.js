@@ -13,13 +13,13 @@ $(document).ready(function() {
   }
 
   //temporary...
-  clearLocalStorage ();
+  // clearLocalStorage ();
 
   currentSelectedCity = {
     cityName: null,
     stateAbbreviation: null
   };
-  
+
   loadCityArray ();
   // loadCityArrayforDevelopment ();
   loadStateSelect ();
